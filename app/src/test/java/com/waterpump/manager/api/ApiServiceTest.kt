@@ -1,30 +1,44 @@
 package com.waterpump.manager.api
 
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import com.waterpump.manager.api.TaskEndpoints
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Before
 import org.junit.Test
-import retrofit2.Retrofit
+import org.mockito.MockitoAnnotations
+import retrofit2.Call
+import retrofit2.Response
+
 
 class ApiServiceTest {
 
-    @Test
-    fun `Should create an instance of retrofit with the default url value for the API`() {
-        val instance: Retrofit = EndpointFactory().retrofit
+    @Mock
+    private lateinit var endpointFactory:EndpointFactory
 
-        val expectedUrl = "http://www.google.com/"
-        val actualUrl:String = instance.baseUrl().toString()
+    private lateinit var instance:ApiService
 
-        assertThat(actualUrl).isEqualTo(expectedUrl)
+    @Before
+    fun setup() {
+        MockitoAnnotations.initMocks(this)
+        instance = ApiService(endpointFactory)
     }
 
     @Test
-    fun `Should at least call the endpoint, even though it doesnt exist `() {
-        val instance = EndpointFactory().createEndpoint(TaskEndpoints::class.java)
-        val pendingTasks = instance.getPendingTasks()
+    fun `Should return list of tasks when fetching pending tasks`() {
+        val taskEndpoint = mock(TaskEndpoints::class.java)
+        val taskCall: Call<*> = mock(Call::class.java)
+        val response:Response<*> = mock(Response::class.java)
+        val tasks:Tasks = Tasks(listOf(Task(1, 0.0f)))
 
-        val execute = pendingTasks.execute()
+        Mockito.`when`(endpointFactory.createEndpoint(TaskEndpoints::class.java)).thenReturn(taskEndpoint)
+        Mockito.`when`(taskEndpoint.getPendingTasks()).thenReturn(taskCall as Call<Tasks>)
+        Mockito.`when`(taskCall.execute()).thenReturn(response as Response<Tasks>)
+        Mockito.`when`(response.body()).thenReturn(tasks)
 
-        assertThat(execute.isSuccessful).isFalse()
-        assertThat(execute.code()).isEqualTo(404)
+        val fetchPendingTasks = instance.fetchPendingTasks()
 
+        assertThat(fetchPendingTasks).hasSize(1)
     }
 }
