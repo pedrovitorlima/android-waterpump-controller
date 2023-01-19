@@ -21,7 +21,7 @@ class ApiService(
             }
 
             override fun onFailure(call: Call<Tasks>, t: Throwable) {
-                TODO("Not yet implemented")
+                throw t
             }
         })
 
