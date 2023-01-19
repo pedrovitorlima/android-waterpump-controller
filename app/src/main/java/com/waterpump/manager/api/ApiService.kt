@@ -1,22 +1,17 @@
 package com.waterpump.manager.api
 
-import com.waterpump.manager.ui.main.LogViewerWrapper
-
 class ApiService(
     private val endpointFactory: EndpointFactory,
 ) {
 
-    fun fetchPendingTasks(): List<Task?>? {
+    fun fetchPendingTasks(): List<Task> {
         val pendingTaskEndpoint =
             endpointFactory.createEndpoint(TaskEndpoints::class.java)
 
         val execute = pendingTaskEndpoint.getPendingTasks().execute()
         val tasks = execute.body()
+            ?: throw java.lang.RuntimeException("Null body was returned by the tasks endpoint")
 
-        if (tasks != null) {
-            return tasks.result
-        }
-
-        return null
+        return tasks.result
     }
 }

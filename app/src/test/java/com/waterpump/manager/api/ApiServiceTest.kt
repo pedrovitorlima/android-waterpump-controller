@@ -40,4 +40,9 @@ class ApiServiceTest {
 
         assertThat(fetchPendingTasks).hasSize(1)
     }
+
+    @Test
+    fun `Should set pending tasks as completed when the related endpoint is called`() {
+
+    }
 }

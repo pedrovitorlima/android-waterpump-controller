@@ -15,13 +15,8 @@ class WaterPumpScheduler(
 
         logViewerWrapper.log("Start listening to AWS")
 
-        if (pendingTasks == null)
-            return
-
         for (task in pendingTasks) {
-            if (task != null) {
-                waterPumpBoard.turnOnWaterPumpFor(task.seconds)
-            }
+            waterPumpBoard.turnOnWaterPumpFor(task.seconds)
         }
     }
 
