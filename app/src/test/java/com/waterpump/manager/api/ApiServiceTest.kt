@@ -11,7 +11,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-@ExperimentalCoroutinesApi
 class ApiServiceTest {
 
 //    private val mockWebServer  = MockWebServer()
