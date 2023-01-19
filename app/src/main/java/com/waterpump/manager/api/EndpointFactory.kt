@@ -4,7 +4,7 @@ import com.waterpump.manager.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class ApiService {
+class EndpointFactory {
 
     val retrofit: Retrofit by lazy {
         Retrofit.Builder()
@@ -13,7 +13,7 @@ class ApiService {
             .build()
     }
 
-    fun<T> buildService(service: Class<T>):T {
+    fun<T> createEndpoint(service: Class<T>):T {
         return retrofit.create(service)
     }
 }

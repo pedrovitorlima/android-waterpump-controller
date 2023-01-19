@@ -1,6 +1,6 @@
 package com.waterpump.manager.board
 
 interface WaterPumpBoard {
-    fun startWaterPump()
+    fun turnOnWaterPumpFor(seconds: Float)
 
 }
