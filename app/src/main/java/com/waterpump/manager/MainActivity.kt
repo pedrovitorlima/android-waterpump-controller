@@ -21,8 +21,7 @@ class MainActivity : AppCompatActivity() {
         val logViewerWrapper: LogViewerWrapper = LogViewerWrapper(findViewById<TextView>(R.id.logViewer))
         logViewerWrapper.log("APPLICATION STARTED")
 
-        val waterPumpScheduler: WaterPumpScheduler = WaterPumpScheduler(logViewerWrapper)
-        waterPumpScheduler.startListening()
+        //TODO start listening
 
     }
 }

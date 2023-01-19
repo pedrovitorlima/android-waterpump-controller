@@ -1,6 +1,6 @@
 package com.waterpump.manager.scheduler
 
-import android.widget.TextView
+import com.waterpump.manager.board.WaterPumpBoard
 import com.waterpump.manager.ui.main.LogViewerWrapper
 import org.junit.Before
 import org.junit.Test
@@ -10,20 +10,31 @@ import org.mockito.MockitoAnnotations
 
 class WaterPumpSchedulerTest {
     @Mock
-    lateinit var logViewerWrapper:LogViewerWrapper
+    private lateinit var waterPumpBoard: WaterPumpBoard
 
-    lateinit var instance:WaterPumpScheduler
+    @Mock
+    private lateinit var logViewerWrapper:LogViewerWrapper
+
+    private lateinit var instance:WaterPumpScheduler
 
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
 
-        instance = WaterPumpScheduler(logViewerWrapper)
+        instance = WaterPumpScheduler(logViewerWrapper, waterPumpBoard)
     }
 
     @Test
     fun `Should log that application is listening to the endpoints`() {
         instance.startListening()
         verify(logViewerWrapper).log("Start listening to AWS")
+    }
+
+    @Test
+    fun `Should trigger the water pump `() {
+
+        instance.startListening()
+        verify(waterPumpBoard).startWaterPump()
+
     }
 }
