@@ -25,6 +25,9 @@ class ApiServiceTest {
     @Mock
     private lateinit var taskEndpoint:TaskEndpoints
 
+    @Mock
+    private lateinit var taskCall: Call<Tasks>
+
     private lateinit var instance:ApiService
 
     @Before
@@ -39,8 +42,10 @@ class ApiServiceTest {
 
     @Test
     fun `Should return list of tasks when fetching pending tasks`() {
-        val taskCall:Call<Tasks> = mockEndpointGetPendingTasks()
         val tasks = Tasks(listOf(Task(1, 0.0f, false)))
+
+        Mockito.`when`(taskEndpoint.getPendingTasks()).thenReturn(taskCall)
+
         whenever(taskCall.enqueue(any())).thenAnswer {
             (it.arguments[0] as Callback<Tasks>).onResponse(taskCall, Response.success(tasks))
         }
@@ -52,7 +57,7 @@ class ApiServiceTest {
 
     @Test
     fun `Should throw an exception when returning pending tasks with body is not present`() {
-        val taskCall: Call<Tasks> = mockEndpointGetPendingTasks()
+        Mockito.`when`(taskEndpoint.getPendingTasks()).thenReturn(taskCall)
 
         whenever(taskCall.enqueue(any())).thenAnswer {
             (it.arguments[0] as Callback<Tasks>).onResponse(taskCall, Response.success(null))
@@ -62,18 +67,14 @@ class ApiServiceTest {
             instance.fetchPendingTasks()
         }.exceptionOrNull()
 
-        assertThat(exception)
-            .isNotNull
-
-        assertThat(exception!!.message)
-            .isNotNull
-            .isEqualTo("Null body was returned by the GET tasks endpoint")
+        assertThatIsAsExpected(exception, "Null body was returned by the GET tasks endpoint")
     }
 
     @Test
     fun `Should throw an exception when fail to get a response from endpoint`() {
-        val taskCall: Call<Tasks> = mockEndpointGetPendingTasks()
         val errorMessage = "network error"
+
+        Mockito.`when`(taskEndpoint.getPendingTasks()).thenReturn(taskCall)
 
         whenever(taskCall.enqueue(any())).thenAnswer {
             (it.arguments[0] as Callback<Tasks>).onFailure(taskCall, java.lang.RuntimeException(errorMessage))
@@ -83,12 +84,7 @@ class ApiServiceTest {
             instance.fetchPendingTasks()
         }.exceptionOrNull()
 
-        assertThat(exception)
-            .isNotNull
-
-        assertThat(exception!!.message)
-            .isNotNull
-            .isEqualTo(errorMessage)
+        assertThatIsAsExpected(exception, errorMessage)
     }
 
     @Test
@@ -109,10 +105,26 @@ class ApiServiceTest {
         assertThat(responseTask.pending).isFalse
     }
 
-    private fun mockEndpointGetPendingTasks(): Call<Tasks> {
-        val taskCall: Call<Tasks> = mock(Call::class.java) as Call<Tasks>
+    @Test
+    fun `Should throw an exception when marking a tasks as finished given the body is not present in the response`() {
+        val taskCall: Call<Task> = mock(Call::class.java) as Call<Task>
+        val task = Task(1, 1.0f, true)
 
-        Mockito.`when`(taskEndpoint.getPendingTasks()).thenReturn(taskCall)
-        return taskCall
+        Mockito.`when`(taskEndpoint.postPendingTasks(task)).thenReturn(taskCall)
+
+        whenever(taskCall.enqueue(any())).thenAnswer {
+            (it.arguments[0] as Callback<Task>).onResponse(taskCall, Response.success(null))
+        }
+
+        val exception = kotlin.runCatching {
+            instance.markTasksAsConcluded(task)
+        }.exceptionOrNull()
+
+        assertThatIsAsExpected(exception, "Null body was returned by the POST tasks endpoint")
+    }
+
+    private fun assertThatIsAsExpected(exception: Throwable?, message: String) {
+        assertThat(exception).isNotNull
+        assertThat(exception!!.message).isEqualTo(message)
     }
 }
