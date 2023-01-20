@@ -19,17 +19,21 @@ import retrofit2.Response
 
 class ApiServiceTest {
 
-    @Captor
-    private lateinit var callbackCaptor: ArgumentCaptor<Callback<Tasks>>
-
     @Mock
     private lateinit var endpointFactory:EndpointFactory
+
+    @Mock
+    private lateinit var taskEndpoint:TaskEndpoints
 
     private lateinit var instance:ApiService
 
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
+
+        Mockito.`when`(endpointFactory.createEndpoint(TaskEndpoints::class.java))
+            .thenReturn(taskEndpoint)
+
         instance = ApiService(endpointFactory)
     }
 
@@ -89,13 +93,10 @@ class ApiServiceTest {
 
     @Test
     fun `Should set tasks as concluded when endpoint is called`() {
-        val taskEndpoint = mock(TaskEndpoints::class.java)
         val taskCall: Call<Task> = mock(Call::class.java) as Call<Task>
         val pendingTask = Task(1, 1.0f, true)
         val finishedTask = Task(1, 1.0f, false)
 
-        Mockito.`when`(endpointFactory.createEndpoint(TaskEndpoints::class.java))
-            .thenReturn(taskEndpoint)
         Mockito.`when`(taskEndpoint.postPendingTasks(pendingTask)).thenReturn(taskCall)
 
         whenever(taskCall.enqueue(any())).thenAnswer {
@@ -109,11 +110,8 @@ class ApiServiceTest {
     }
 
     private fun mockEndpointGetPendingTasks(): Call<Tasks> {
-        val taskEndpoint = mock(TaskEndpoints::class.java)
         val taskCall: Call<Tasks> = mock(Call::class.java) as Call<Tasks>
 
-        Mockito.`when`(endpointFactory.createEndpoint(TaskEndpoints::class.java))
-            .thenReturn(taskEndpoint)
         Mockito.`when`(taskEndpoint.getPendingTasks()).thenReturn(taskCall)
         return taskCall
     }

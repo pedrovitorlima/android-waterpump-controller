@@ -7,12 +7,14 @@ import retrofit2.Response
 class ApiService(
     private val endpointFactory: EndpointFactory,
 ) {
+    private var taskEndpoints: TaskEndpoints
+
+    init {
+        taskEndpoints = endpointFactory.createEndpoint(TaskEndpoints::class.java)
+    }
 
     fun fetchPendingTasks(): List<Task> {
-        val pendingTaskEndpoint =
-            endpointFactory.createEndpoint(TaskEndpoints::class.java)
-
-        val call = pendingTaskEndpoint.getPendingTasks()
+        val call = taskEndpoints.getPendingTasks()
 
         var tasks:Tasks = Tasks(emptyList())
         call.enqueue(object: Callback<Tasks> {
@@ -29,12 +31,8 @@ class ApiService(
     }
 
     fun markTasksAsConcluded(task: Task): Task {
-
-        val postTasksEndpoint =
-            endpointFactory.createEndpoint(TaskEndpoints::class.java)
-
         var responseTask:Task = Task(0, 0f, false)
-        val call = postTasksEndpoint.postPendingTasks(task)
+        val call = taskEndpoints.postPendingTasks(task)
 
         call.enqueue(object: Callback<Task> {
             override fun onResponse(call: Call<Task>, response: Response<Task>) {
