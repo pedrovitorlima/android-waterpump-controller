@@ -40,7 +40,7 @@ class WaterPumpSchedulerTest {
 
     @Test
     fun `Should turn on the water pump for the amount of time defined in the task`() {
-        val listOfTasks:List<Task> = listOf(Task(1, 0.5f), Task(2, 0.5f))
+        val listOfTasks:List<Task> = listOf(Task(1, 0.5f, false), Task(2, 0.5f, false))
         Mockito.`when`(apiService.fetchPendingTasks()).thenReturn(listOfTasks)
 
         instance.startListening()
