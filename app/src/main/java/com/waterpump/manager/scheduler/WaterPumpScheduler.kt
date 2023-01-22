@@ -17,6 +17,7 @@ class WaterPumpScheduler(
 
         for (task in pendingTasks) {
             waterPumpBoard.turnOnWaterPumpFor(task.seconds)
+            apiService.markTasksAsConcluded(task)
         }
     }
 

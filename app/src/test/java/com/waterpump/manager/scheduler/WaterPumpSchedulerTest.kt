@@ -8,8 +8,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 
 class WaterPumpSchedulerTest {
@@ -46,5 +45,15 @@ class WaterPumpSchedulerTest {
         instance.startListening()
 
         verify(waterPumpBoard, times(2)).turnOnWaterPumpFor(0.5f)
+    }
+
+    @Test
+    fun `Should set task done after processing it`() {
+        val task = Task(1, 0.5f, false)
+        Mockito.`when`(apiService.fetchPendingTasks()).thenReturn(listOf(task))
+
+        instance.startListening()
+
+        verify(apiService).markTasksAsConcluded(task)
     }
 }
