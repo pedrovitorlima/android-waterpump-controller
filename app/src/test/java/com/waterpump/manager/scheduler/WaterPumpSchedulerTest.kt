@@ -10,6 +10,8 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class WaterPumpSchedulerTest {
     @Mock
@@ -33,7 +35,7 @@ class WaterPumpSchedulerTest {
 
     @Test
     fun `Should log that application is listening to the endpoints`() {
-        instance.startListening()
+        instance.processPendingTasks()
         verify(logViewerWrapper).log("Start listening to AWS")
     }
 
@@ -42,7 +44,7 @@ class WaterPumpSchedulerTest {
         val listOfTasks:List<Task> = listOf(Task(1, 0.5f, false), Task(2, 0.5f, false))
         Mockito.`when`(apiService.fetchPendingTasks()).thenReturn(listOfTasks)
 
-        instance.startListening()
+        instance.processPendingTasks()
 
         verify(waterPumpBoard, times(2)).turnOnWaterPumpFor(0.5f)
     }
@@ -52,8 +54,17 @@ class WaterPumpSchedulerTest {
         val task = Task(1, 0.5f, false)
         Mockito.`when`(apiService.fetchPendingTasks()).thenReturn(listOf(task))
 
-        instance.startListening()
+        instance.processPendingTasks()
 
         verify(apiService).markTasksAsConcluded(task)
+    }
+
+    @Test
+    fun `Should log if call the endpoint and there are no pending tasks`() {
+        Mockito.`when`(apiService.fetchPendingTasks()).thenReturn(emptyList())
+
+        instance.processPendingTasks()
+
+        verify(logViewerWrapper).log("No pending events to be processed")
     }
 }
