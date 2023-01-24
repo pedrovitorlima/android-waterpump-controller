@@ -19,7 +19,7 @@ class ApiService(
         var tasks:Tasks = Tasks(emptyList())
         call.enqueue(object: Callback<Tasks> {
             override fun onResponse(call: Call<Tasks>, response: Response<Tasks>) {
-                tasks = response.body() ?: throw java.lang.RuntimeException("Null body was returned by the GET tasks endpoint")
+                tasks = response.body() ?: throw java.lang.Exception("Null body was returned by the GET tasks endpoint")
             }
 
             override fun onFailure(call: Call<Tasks>, t: Throwable) {

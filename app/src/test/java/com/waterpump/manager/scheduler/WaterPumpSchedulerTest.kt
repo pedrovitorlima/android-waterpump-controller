@@ -1,24 +1,21 @@
 package com.waterpump.manager.scheduler
 
+import android.util.Log
 import com.waterpump.manager.api.ApiService
 import com.waterpump.manager.api.Task
 import com.waterpump.manager.board.WaterPumpBoard
-import com.waterpump.manager.ui.main.LogViewerWrapper
+import io.mockk.every
+import io.mockk.mockkStatic
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class WaterPumpSchedulerTest {
     @Mock
     private lateinit var waterPumpBoard: WaterPumpBoard
-
-    @Mock
-    private lateinit var logViewerWrapper:LogViewerWrapper
 
     @Mock
     private lateinit var apiService:ApiService
@@ -30,13 +27,11 @@ class WaterPumpSchedulerTest {
     fun setup() {
         MockitoAnnotations.initMocks(this)
 
-        instance = WaterPumpScheduler(logViewerWrapper, waterPumpBoard, apiService)
-    }
+        instance = WaterPumpScheduler(waterPumpBoard, apiService)
 
-    @Test
-    fun `Should log that application is listening to the endpoints`() {
-        instance.processPendingTasks()
-        verify(logViewerWrapper).log("Start listening to AWS")
+        mockkStatic(Log::class)
+        every { Log.i(any(), any()) } returns 0
+
     }
 
     @Test
@@ -57,14 +52,5 @@ class WaterPumpSchedulerTest {
         instance.processPendingTasks()
 
         verify(apiService).markTasksAsConcluded(task)
-    }
-
-    @Test
-    fun `Should log if call the endpoint and there are no pending tasks`() {
-        Mockito.`when`(apiService.fetchPendingTasks()).thenReturn(emptyList())
-
-        instance.processPendingTasks()
-
-        verify(logViewerWrapper).log("No pending events to be processed")
     }
 }

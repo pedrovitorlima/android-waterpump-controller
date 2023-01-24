@@ -1,30 +1,31 @@
 package com.waterpump.manager.scheduler
 
+import android.util.Log
 import com.waterpump.manager.api.ApiService
 import com.waterpump.manager.board.WaterPumpBoard
-import com.waterpump.manager.ui.main.LogViewerWrapper
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class WaterPumpScheduler(
-    private val logViewerWrapper: LogViewerWrapper,
     private val waterPumpBoard: WaterPumpBoard,
     private val apiService: ApiService
 ) {
 
     fun processPendingTasks() {
-        val pendingTasks = apiService.fetchPendingTasks()
+        try {
+            val pendingTasks = apiService.fetchPendingTasks()
 
-        logViewerWrapper.log("Start listening to AWS")
+            Log.i("scheduler", "Listening to pending tasks")
 
-        if (pendingTasks.isEmpty()) {
-            logViewerWrapper.log("No pending events to be processed")
-            return
-        }
+            if (pendingTasks.isEmpty()) {
+                Log.i("scheduler", "No pending events to be processed")
+                return
+            }
 
-        for (task in pendingTasks) {
-            waterPumpBoard.turnOnWaterPumpFor(task.seconds)
-            apiService.markTasksAsConcluded(task)
+            for (task in pendingTasks) {
+                waterPumpBoard.turnOnWaterPumpFor(task.seconds)
+                apiService.markTasksAsConcluded(task)
+            }
+        } catch(exception:java.lang.Exception) {
+            Log.i("scheduler", "An error has happened while fetching pending tasks: " + exception.message!!)
         }
     }
 
