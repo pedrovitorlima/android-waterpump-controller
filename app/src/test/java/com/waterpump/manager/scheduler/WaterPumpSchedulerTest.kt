@@ -22,7 +22,6 @@ class WaterPumpSchedulerTest {
 
     private lateinit var instance:WaterPumpScheduler
 
-
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)

@@ -24,6 +24,10 @@ class MainActivity : AppCompatActivity() {
 
         Log.i("MyTag", "APPLICATION STARTED")
 
+        processPendingTasks()
+    }
+
+    private fun processPendingTasks() {
         val waterPumpBoard = WaterPumpBoardImpl()
         val apiService = ApiService(EndpointFactory())
 
@@ -31,10 +35,10 @@ class MainActivity : AppCompatActivity() {
 
         val timer = Timer()
 
-        timer.schedule(object: TimerTask() {
+        timer.schedule(object : TimerTask() {
             override fun run() {
                 waterPumpScheduler.processPendingTasks()
             }
-        }, 0L,5*1000)
+        }, 0L, 5 * 1000)
     }
 }
